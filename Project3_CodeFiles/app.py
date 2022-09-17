@@ -36,8 +36,8 @@ st.title("Sell Home and Issue Title")
 accounts = w3.eth.accounts
 # Use a streamlit component to get the address of the artwork owner from the user
 address = st.selectbox("Select City Address", options=accounts)
-buyer = st.selectbox("Select Seller", options=accounts)
-seller = st.selectbox("Select Buyer", options=accounts)
+seller = st.selectbox("Select Seller", options=accounts)
+buyer = st.selectbox("Select Buyer", options=accounts)
 bank = st.selectbox("Select Bank", options=accounts)
 taxId=st.text_input("Enter Tax ID")
 # Use a streamlit component to get the artwork's URI
@@ -48,7 +48,7 @@ if st.button("Register Home for Sale"):
 
     # Use the contract to send a transaction to the registerArtwork function
     tx_hash = contract.functions.registerHome(
-        seller, buyer, bank, taxId,intSellPrice,home_uri
+        seller, buyer, bank, taxId,intSellPrice,home_uri, home_uri
     ).transact({'from': address, 'gas': 1000000})
     receipt = w3.eth.waitForTransactionReceipt(tx_hash)
     st.write("Transaction receipt mined:")
@@ -77,8 +77,9 @@ if st.button("Display"):
     st.write(f"{information}")
     st.write(f"The token is registered to {owner}")
     st.write(f"Tax Id {information[3]}")
-    st.write(f"Price {information[4]}")
+    st.write(f"Price {information[4]} ETH")
     st.write(f"Mortgage Holding Bank {information[2]}")
+    st.write(f"Current Lien Amount  {information[5]} ETH")
     # Use the contract's `tokenURI` function to get the Home Title token's URI
     token_uri = contract.functions.tokenURI(token_id).call()
     if not token_uri:
@@ -87,4 +88,24 @@ if st.button("Display"):
         st.write(f"The tokenURI is {token_uri}")
         st.image(token_uri)
     
+ ################################################################################
+# Put a Lien on the Home Title
+################################################################################  
+accounts2 = w3.eth.accounts
+st.markdown("## Put a Lien on the Home Title")
+lienAmount=st.text_input("Enter Lien Amount in ETH")
+bank_address=st.selectbox("Bank Address", options=accounts2)
+owner_address = st.selectbox("Owner Address", options=accounts2)
+tokens2 = contract.functions.balanceOf(owner_address).call()
+
+token_id_4_lien = st.selectbox("Home Title Token", list(range(tokens2)))
+
+if st.button("Register Lien"):
    
+    tx_hash2 = contract.functions.putA_Lien(
+        int(lienAmount), token_id_4_lien,bank_address
+    ).transact({"from": w3.eth.accounts[0]})
+    receipt = w3.eth.waitForTransactionReceipt(tx_hash2)
+    st.write(receipt)
+st.markdown("---")
+

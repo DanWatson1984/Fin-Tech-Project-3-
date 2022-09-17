@@ -12,27 +12,31 @@ contract RegisterHome is ERC721Full {
         address bank;
         string taxId;
         uint256 sellPrice;
+        uint256 lienAmount;
+        string reportURI;
     }
 
     mapping(uint256 => HomeTitle) public homeTitles;
-    event RegisterHomeForSale(address seller, address buyer, address bank, uint256 token_id, uint256 newPrice, string taxId, string reportURI);
-
+    event RegisterHomeForSale(address seller, address buyer, address bank, uint256 token_id, uint256 newPrice, string taxId, string reportURI,uint256 lienAmount);
+    event Lien(address bank, uint256 token_id, uint256 LienAmount);
     function registerHome(
         address seller,
         address buyer,
         address bank,
         string memory taxId,
         uint256 sellPrice,
-        string memory tokenURI
+        string memory tokenURI,
+        string memory propertyURI
+       
        
 ) public returns (uint256) {
 
      uint256 tokenId = totalSupply();
 
-        _mint(seller, tokenId);
+        _mint(buyer, tokenId);
         _setTokenURI(tokenId, tokenURI);
 
-        homeTitles[tokenId] = HomeTitle( seller, buyer, bank, taxId, sellPrice);
+        homeTitles[tokenId] = HomeTitle( seller, buyer, bank, taxId, sellPrice,0,propertyURI);
 
         return tokenId;
 
@@ -48,8 +52,22 @@ function newHomeSaleSubmission(
     ) public returns (uint256) {
         homeTitles[tokenId].sellPrice = newPrice;
 
-        emit RegisterHomeForSale(seller, buyer, bank,tokenId, newPrice, taxId, reportURI_);
+        emit RegisterHomeForSale(seller, buyer, bank,tokenId, newPrice, taxId, reportURI_,0);
 
         return homeTitles[tokenId].sellPrice;
+    }
+
+    function putA_Lien(
+       
+        uint256 newLienAmount,
+        uint256 tokenId,
+        address bank
+       
+    ) public returns (uint256) {
+        homeTitles[tokenId].lienAmount = newLienAmount;
+
+        emit Lien(bank, tokenId, newLienAmount);
+
+        return homeTitles[tokenId].lienAmount;
     }
 }
