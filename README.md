@@ -22,4 +22,7 @@ Technology Used:
 Remix IDE 
 Solidity programming language
 Python
+Ganache
+Metamask
+Pinata
 
