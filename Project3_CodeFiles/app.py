@@ -152,26 +152,34 @@ st.markdown("---")
 # Transfer Existing Title to New Owner - Home Resale
 ################################################################################  
 accounts2 = w3.eth.accounts
+title_tokenIds3 = []
 with col1:
     st.markdown("<Div role='alert' class='alert alert-warning' ><h1>Transfer Existing Title to New Owner</h1></Div>",unsafe_allow_html=True)
-    saleExecutor = st.selectbox("Sale Executed By:", options=accounts2)
+    saleExecutor = st.selectbox("Sale Executed By", options=accounts2)
     seller_address = st.selectbox("Seller Address", options=accounts2)
     buyer_address = st.selectbox("Buyer Address", options=accounts2)
     newBank_address = st.selectbox("New Bank Address", options=accounts2)
     seller_token = contract.functions.balanceOf(seller_address).call()
    
-    token_to_be_resold = st.selectbox("Home Title Token:", list(range(seller_token)))
-    #newSell_price= st.text_input("New Sale Price:","0")
-    #intSellPriceNew=int (newSell_price)
-    index =accounts2.index(seller_address)
+    #token_to_be_resold = st.selectbox("Home Title Token:", list(range(seller_token)))
+   
+    ##################################
+    for x in range(seller_token):
+        tokenID3 = contract.functions.tokenOfOwnerByIndex(seller_address, x).call()
+        title_tokenIds3.append(tokenID3)
+    token_id_for_transfer = st.selectbox("Select Title to Transfer", (title_tokenIds3))
+
+    
+    index4 =accounts2.index(seller_address)
+    
      ###In order to sell the property the city account has been granted access to to transfer the tokens
-    contract.functions.setApprovalForAll(accounts[1], True).transact({"from": w3.eth.accounts[index]})
     if st.button("Resell and Update Title"):
-       
+       # contract.functions.setApprovalForAll(accounts[1], True).transact({"from": w3.eth.accounts[index]})
+        contract.functions.setApprovalForAll(accounts[1], True).transact({"from": w3.eth.accounts[index4]})
         
         ##Title can be transferred by the owner or the city address 0x79a5Afd814b91C5Fa97f4d4B84Ab9E7D75b4Fa10
 
-        tx_hash_transfer=contract.functions.transferFrom(seller_address, buyer_address,int(token_to_be_resold)).transact({"from": w3.eth.accounts[index]})
+        tx_hash_transfer=contract.functions.transferFrom(seller_address, buyer_address,int(token_id_for_transfer)).transact({"from": saleExecutor})
         receipt_transfer = w3.eth.waitForTransactionReceipt(tx_hash_transfer)
         st.markdown(receipt_transfer)
         st.markdown("---")
